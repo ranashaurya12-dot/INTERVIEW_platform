@@ -19,19 +19,26 @@ const syncUser = inngest.createFunction(
       first_name,
       last_name,
       image_url,
-    } = event.data.user;
+    } = event.data;
+
+    // Prevent saving a user with a null/undefined clerkId
+    if (!id) {
+      throw new Error(
+        `Clerk ID is missing. Event data: ${JSON.stringify(event.data)}`
+      );
+    }
 
     const newUser = {
       clerkId: id,
-      email: email_addresses[0]?.email_address,
-      name: `${first_name || ""} ${last_name || ""}`,
-      profileImage: image_url,
+      email: email_addresses?.[0]?.email_address || "",
+      name: `${first_name || ""} ${last_name || ""}`.trim(),
+      profileImage: image_url || "",
     };
 
     await User.create(newUser);
 
     await upsertStreamUser({
-      id: newUser.clerkId.toString(),
+      id: newUser.clerkId,
       name: newUser.name,
       image: newUser.profileImage,
     });
@@ -48,9 +55,13 @@ const deleteUserFromDB = inngest.createFunction(
 
     const { id } = event.data;
 
+    if (!id) {
+      throw new Error("Clerk ID is missing from delete event");
+    }
+
     await User.deleteOne({ clerkId: id });
 
-    await deleteStreamUser(id.toString());
+    await deleteStreamUser(id);
   }
 );
 
