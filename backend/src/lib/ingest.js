@@ -1,9 +1,11 @@
 import { Inngest } from "inngest";
-import { connectDb } from "./db.js";
-import User from"../models/user.js";
+import { connectDB } from "./db.js";
+import User from "../models/User.js";
 import { deleteStreamUser, upsertStreamUser } from "./stream.js";
 
-export const inngest = new Inngest({ id: "talent-iq" });
+export const inngest = new Inngest({
+  id: "shorya-talentiq",
+});
 
 const syncUser = inngest.createFunction(
   {
@@ -11,7 +13,7 @@ const syncUser = inngest.createFunction(
     triggers: [{ event: "clerk/user.created" }],
   },
   async ({ event }) => {
-    await connectDb();
+    await connectDB();
 
     const {
       id,
@@ -44,7 +46,7 @@ const deleteUserFromDB = inngest.createFunction(
     triggers: [{ event: "clerk/user.deleted" }],
   },
   async ({ event }) => {
-    await connectDb();
+    await connectDB();
 
     const { id } = event.data;
 
