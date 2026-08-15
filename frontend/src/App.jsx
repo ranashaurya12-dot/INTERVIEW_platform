@@ -1,35 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
+import HomePage from './pages/HomePage'
+import AboutPage from './pages/AboutPage'
+import { Route, Routes } from 'react-router'
+import { useUser } from '@clerk/clerk-react'
+import { Navigate } from 'react-router'
+import ProblemsPage from './pages/ProblemsPage'
+import ProblemPage from './pages/ProblemPage'
+import { useCreateSession } from './hooks/useSessions'
+import DashboardPage from './pages/DashboardPage'
+import AxiosAuthSync from './components/AxiosAuthSync'   // 👈 add this import
+import SessionPage from './pages/SessionPage'
 function App() {
-  const [count, setCount] = useState(0)
+  const { isSignedIn, isLoaded } = useUser();
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <AxiosAuthSync />   {/* 👈 add this, runs once, renders nothing */}
+
+     <Routes>
+  <Route path="/" element={!isSignedIn ? <HomePage /> : <Navigate to={"/dashboard"} />} />
+  <Route path="/dashboard" element={isSignedIn ? <DashboardPage /> : <Navigate to={"/"} />} />
+  <Route path="/problem/:id" element={isSignedIn ? <ProblemPage /> : <Navigate to={"/"} />} />
+  <Route path="/about" element={<AboutPage />} />
+  <Route path="/problems" element={isSignedIn ? <ProblemsPage /> : <Navigate to="/" />} />
+  <Route path="/session/:id" element={isSignedIn ? <SessionPage /> : <Navigate to="/" />} />
+</Routes>
     </>
-  )
+  );
 }
 
 export default App
