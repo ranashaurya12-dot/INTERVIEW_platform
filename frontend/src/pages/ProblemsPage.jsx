@@ -7,9 +7,9 @@ import { getDifficultyBadgeClass } from "../lib/utils";
 
 function ProblemsPage() {
   const problems = Object.values(PROBLEMS);
-console.log("API URL:", import.meta.env.VITE_API_URL);
 
-  // ✅ pehle hook
+
+
 const {data:sessions} = useActiveSessions();
 
 console.log(sessions);
